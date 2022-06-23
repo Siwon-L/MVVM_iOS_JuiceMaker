@@ -17,7 +17,7 @@ class ViewModel {
     
     struct OutPut {
         let menu: AnyPublisher<String?, Never>
-        //let stock AnyPublisher<[String: Int], Never>
+        let stock: AnyPublisher<[String: String], Never>
     }
     
     func changeJuiceToString(input: Input) -> OutPut {
@@ -43,7 +43,20 @@ class ViewModel {
                 return "망키 쥬스"
             }
         }.eraseToAnyPublisher()
-        return OutPut(menu: juice)
+        
+        let stocks = juiceMaker.$fruitStore
+            .map { value -> [String: String] in
+                var dic: [String: String] = [:]
+                dic["딸기"] = String(value.strawberryStock)
+                dic["바나나"] = String(value.bananaStock)
+                dic["파인애플"] = String(value.pineappleStock)
+                dic["키위"] = String(value.kiwiStock)
+                dic["망고"] = String(value.mangoStock)
+                
+                return dic
+            }.eraseToAnyPublisher()
+        
+        return OutPut(menu: juice, stock: stocks)
     }
     
 }

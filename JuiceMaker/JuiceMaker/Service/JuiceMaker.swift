@@ -5,10 +5,11 @@
 // 
 
 import Foundation
+import Combine
 
 // 쥬스 메이커 타입
-struct JuiceMaker {
-    let fruitStore = FruitStore(allFruitStock: 30)
+class JuiceMaker {
+    @Published var fruitStore = FruitStore(allFruitStock: 30)
     
     enum Juice {
         case strawberryJuice

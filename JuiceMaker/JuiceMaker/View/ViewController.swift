@@ -56,6 +56,14 @@ class ViewController: UIViewController {
             alertController.addAction(.init(title: "확인", style: .default))
             self?.present(alertController, animated: true, completion: nil)
         }.store(in: &bag)
+        
+        output.stock.sink { [weak self] value in
+            self?.strawberryLabel.text = value["딸기"]
+            self?.bananaLabel.text = value["바나나"]
+            self?.pineappleLabel.text = value["파인애플"]
+            self?.kiwiLabel.text = value["키위"]
+            self?.magoLabel.text = value["망고"]
+        }.store(in: &bag)
     }
 
 
