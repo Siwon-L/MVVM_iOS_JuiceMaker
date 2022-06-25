@@ -6,57 +6,40 @@
 //
 
 import Foundation
-import Combine
+import RxSwift
 
 class ViewModel {
-    var juiceMaker = JuiceMaker()
+    let juiceMaker = JuiceMaker()
     
-    struct Input {
-        let order: AnyPublisher<JuiceMaker.Juice?, Never>
-    }
+    var orderObservable = BehaviorSubject<JuiceMaker.Juice?>(value: nil)
     
-    struct OutPut {
-        let menu: AnyPublisher<String?, Never>
-        let stock: AnyPublisher<[String: String], Never>
-    }
+    lazy var fruitStock = orderObservable
+        .map { [weak self] _ in
+            self?.juiceMaker.fruitStore
+        }
     
-    func changeJuiceToString(input: Input) -> OutPut {
-        let juice = input.order.map { juice -> String? in
+    lazy var orderMenu = orderObservable
+        .map { [weak self] juice -> JuiceMaker.Juice? in
             guard let juice = juice else { return nil }
-            guard let output = self.juiceMaker.makeJuice(menu: juice) else {
-                return "품절입니다."
-            }
-            switch output {
+            return self?.juiceMaker.makeJuice(menu: juice)
+        }
+        .map { juice -> String? in
+            guard let juice = juice else { return nil }
+            switch juice {
             case .strawberryJuice:
-                return "딸기 쥬스"
+                return "딸기 주스"
             case .bananaJuice:
-                return "바나나 쥬스"
+                return  "바나나 주스"
             case .pineappleJuice:
-                return "파인애플 쥬스"
+                return "파인애플 주스"
             case .kiwiJuice:
-                return "키위 쥬스"
+                return "키위 주스"
             case .mangoJuice:
-                return "망고 쥬스"
+                return "망고 주스"
             case .strawberryAndBananaJuice:
-                return "딸바 쥬스"
+                return "딸바 주스"
             case .mangoAndKiwiJuice:
-                return "망키 쥬스"
+                return "망키 주스"
             }
-        }.eraseToAnyPublisher()
-        
-        let stocks = juiceMaker.$fruitStore
-            .map { value -> [String: String] in
-                var dic: [String: String] = [:]
-                dic["딸기"] = String(value.strawberryStock)
-                dic["바나나"] = String(value.bananaStock)
-                dic["파인애플"] = String(value.pineappleStock)
-                dic["키위"] = String(value.kiwiStock)
-                dic["망고"] = String(value.mangoStock)
-                
-                return dic
-            }.eraseToAnyPublisher()
-        
-        return OutPut(menu: juice, stock: stocks)
-    }
-    
+        }
 }

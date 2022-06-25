@@ -5,15 +5,14 @@
 // 
 
 import UIKit
-import Combine
+import RxSwift
+import RxCocoa
 
 class ViewController: UIViewController {
     typealias JuiceName = JuiceMaker.Juice
     
-    @Published var order: JuiceName? = nil
-    
     let viewModel = ViewModel()
-    var bag: Set<AnyCancellable> = []
+    var bag = DisposeBag()
     
     @IBOutlet weak var strawberryLabel: UILabel!
     @IBOutlet weak var bananaLabel: UILabel!
@@ -43,29 +42,27 @@ class ViewController: UIViewController {
     }
     @IBAction func orderButtonDidTapped(_ sender: UIButton) {
         guard let juice = buttonGroup[sender] else { return }
-        order = juice
+        viewModel.orderObservable.onNext(juice)
     }
     
     func bined() {
-        let input = ViewModel.Input(order: $order.eraseToAnyPublisher())
+        viewModel.orderMenu
+            .subscribe(onNext: { [weak self] value in
+                guard let value = value else { return }
+                let alertController = UIAlertController(title: value, message: nil, preferredStyle: .alert)
+                alertController.addAction(.init(title: "확인", style: .default))
+                self?.present(alertController, animated: true, completion: nil)
+            }).disposed(by: bag)
         
-        let output = viewModel.changeJuiceToString(input: input)
-        output.menu.sink { [weak self] value in
-            guard let value = value else { return }
-            let alertController = UIAlertController(title: value, message: nil, preferredStyle: .alert)
-            alertController.addAction(.init(title: "확인", style: .default))
-            self?.present(alertController, animated: true, completion: nil)
-        }.store(in: &bag)
-        
-        output.stock.sink { [weak self] value in
-            self?.strawberryLabel.text = value["딸기"]
-            self?.bananaLabel.text = value["바나나"]
-            self?.pineappleLabel.text = value["파인애플"]
-            self?.kiwiLabel.text = value["키위"]
-            self?.magoLabel.text = value["망고"]
-        }.store(in: &bag)
+        viewModel.fruitStock
+            .subscribe(onNext: { [weak self] value in
+                guard let value = value else { return }
+                self?.strawberryLabel.text = "\(value.strawberryStock)"
+                self?.bananaLabel.text = "\(value.bananaStock)"
+                self?.pineappleLabel.text = "\(value.pineappleStock)"
+                self?.kiwiLabel.text = "\(value.kiwiStock)"
+                self?.magoLabel.text = "\(value.mangoStock)"
+            })
+            .disposed(by: bag)
     }
-
-
 }
-

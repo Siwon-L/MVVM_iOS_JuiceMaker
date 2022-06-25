@@ -5,11 +5,10 @@
 // 
 
 import Foundation
-import Combine
 
 // 쥬스 메이커 타입
 class JuiceMaker {
-    @Published var fruitStore = FruitStore(allFruitStock: 30)
+    var fruitStore = FruitStore.init(allFruitStock: 30)
     
     enum Juice {
         case strawberryJuice
