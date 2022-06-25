@@ -90,3 +90,8 @@ fastlane/test_output
 iOSInjectionProject/
 .DS_Store
 *.xcuserstate
+JuiceMaker/Pods
+JuiceMaker/Podfile.lock
+JuiceMaker/JuiceMaker.xcworkspace/contents.xcworkspacedata
+JuiceMaker/JuiceMaker.xcworkspace/xcshareddata/IDEWorkspaceChecks.plist
+JuiceMaker/JuiceMaker.xcodeproj/xcuserdata/isiwon.xcuserdatad/xcschemes/xcschememanagement.plist
