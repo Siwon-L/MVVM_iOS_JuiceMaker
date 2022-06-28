@@ -9,7 +9,7 @@ import RxSwift
 import RxCocoa
 
 class ViewController: UIViewController {
-    typealias JuiceName = JuiceMaker.Juice
+    typealias JuiceName = ViewModel.Juice
     
     let viewModel = ViewModel()
     var bag = DisposeBag()
@@ -18,7 +18,7 @@ class ViewController: UIViewController {
     @IBOutlet weak var bananaLabel: UILabel!
     @IBOutlet weak var pineappleLabel: UILabel!
     @IBOutlet weak var kiwiLabel: UILabel!
-    @IBOutlet weak var magoLabel: UILabel!
+    @IBOutlet weak var mangoLabel: UILabel!
     
     @IBOutlet weak var strawberryJuiceButton: UIButton!
     @IBOutlet weak var bananaJuiceButton: UIButton!
@@ -29,13 +29,13 @@ class ViewController: UIViewController {
     @IBOutlet weak var mangoAndKiwiJuiceButton: UIButton!
     
     lazy var buttonGroup :[UIButton: JuiceName] = [strawberryJuiceButton: .strawberryJuice,
-                                                   bananaJuiceButton: .bananaJuice,
-                                                pineappleJuiceButton: .pineappleJuice,
-                                                     kiwiJuiceButton: .kiwiJuice,
-                                                    mangoJuiceButton: .mangoJuice,
-                                      strawberryAndBananaJuiceButton: .strawberryAndBananaJuice,
-                                             mangoAndKiwiJuiceButton: .mangoAndKiwiJuice]
-
+                                                       bananaJuiceButton: .bananaJuice,
+                                                    pineappleJuiceButton: .pineappleJuice,
+                                                         kiwiJuiceButton: .kiwiJuice,
+                                                        mangoJuiceButton: .mangoJuice,
+                                          strawberryAndBananaJuiceButton: .strawberryAndBananaJuice,
+                                                 mangoAndKiwiJuiceButton: .mangoAndKiwiJuice]
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         bined()
@@ -48,21 +48,39 @@ class ViewController: UIViewController {
     func bined() {
         viewModel.orderMenu
             .subscribe(onNext: { [weak self] value in
-                guard let value = value else { return }
                 let alertController = UIAlertController(title: value, message: nil, preferredStyle: .alert)
                 alertController.addAction(.init(title: "확인", style: .default))
                 self?.present(alertController, animated: true, completion: nil)
             }).disposed(by: bag)
         
-        viewModel.fruitStock
+        Observable
+            .of(viewModel.editStock, viewModel.fruitStock)
+            .merge()
             .subscribe(onNext: { [weak self] value in
-                guard let value = value else { return }
                 self?.strawberryLabel.text = "\(value.strawberryStock)"
                 self?.bananaLabel.text = "\(value.bananaStock)"
                 self?.pineappleLabel.text = "\(value.pineappleStock)"
                 self?.kiwiLabel.text = "\(value.kiwiStock)"
-                self?.magoLabel.text = "\(value.mangoStock)"
+                self?.mangoLabel.text = "\(value.mangoStock)"
             })
             .disposed(by: bag)
+        
+//        viewModel.fruitStock
+//            .map { fruitStore in
+//                "\(fruitStore.strawberryStock)"
+//            }
+//            .asDriver(onErrorJustReturn: "")
+//            .drive(strawberryLabel.rx.text)
+//            .disposed(by: bag)
+    }
+    
+    @IBAction func editButtonTapped(_ sender: UIBarButtonItem) {
+        
+        
+        guard let subView = self.storyboard?
+                .instantiateViewController(identifier: "StockVC", creator: { [weak self] coder in
+                    StockViewController(viewModel: self!.viewModel, coder: coder)
+                }) else { return }
+        self.navigationController?.pushViewController(subView, animated: true)
     }
 }

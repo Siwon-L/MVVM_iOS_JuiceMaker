@@ -20,6 +20,23 @@ class JuiceMaker {
         case mangoAndKiwiJuice
     }
     
+    func addStock(fruit: String, value: Int) {
+        switch fruit {
+        case "딸기":
+            fruitStore.strawberryStock = value
+        case "바나나":
+            fruitStore.bananaStock = value
+        case "파인애플":
+            fruitStore.pineappleStock = value
+        case "키위":
+            fruitStore.kiwiStock = value
+        case "망고":
+            fruitStore.mangoStock = value
+        default:
+            return
+        }
+    }
+    
     func makeJuice(menu: Juice) -> Juice? {
         switch menu {
         case .strawberryJuice:

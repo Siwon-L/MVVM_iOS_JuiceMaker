@@ -8,6 +8,7 @@ import Foundation
 
 // 과일 저장소 타입
 struct FruitStore {
+    
     var strawberryStock: Int
     var bananaStock: Int
     var pineappleStock: Int
